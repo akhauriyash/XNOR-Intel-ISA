@@ -1,6 +1,15 @@
-#include <stdio.h>
-#include "omp.h"
-#include <stdlib.h>
+#include "include.h"
+
+void main(){
+	//	Gives processor and thread count
+	proc_count();
+	//	Adds thread numbers --> inspects thread parallelization
+	//	omp critical
+	thread_array_add();
+	//	parallel function call
+	call_parallel();
+}
+
 
 int f(int x){x++; return x;}
 int g(int x){x = x*x*x; return x;}
@@ -49,14 +58,4 @@ void call_parallel(){
 	printf("%f\n", result);
 }
 
-void main(){
-	//	Gives processor and thread count
-	proc_count();
-	//	Adds thread numbers --> inspects thread parallelization
-	//	omp critical
-	thread_array_add();
-	//	parallel function call
-	call_parallel();
-
-}
 
