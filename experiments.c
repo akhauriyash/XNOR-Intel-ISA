@@ -6,10 +6,14 @@ int f(int x){x++; return x;}
 int g(int x){x = x*x*x; return x;}
 int h(int x){x = x*x; return x;}
 
-void main(){
+void proc_count(){
 	printf("Processor count: %d \n", omp_get_num_procs());
-	int tsum = 0;
 	printf("Thread count: %d \n", omp_get_num_threads());
+}
+
+void thread_array_add(){
+	int tsum = 0;
+
 	int arr[8] = {5, 5, 5, 5, 5, 5, 5, 5};
 	//	Index number of array = thread number
 	#pragma omp parallel shared(tsum)
@@ -26,7 +30,9 @@ void main(){
 		printf("%d\t", arr[i]);
 	}
 	printf("\nSum with for loop : %d\n", tsum);
+}
 
+void call_parallel(){
 	double result, fresult, gresult, hresult;
 	int x = 2;
 	#pragma omp parallel
@@ -41,5 +47,16 @@ void main(){
 	printf("g: %f\n", gresult);
 	printf("h: %f\n", hresult);
 	printf("%f\n", result);
+}
+
+void main(){
+	//	Gives processor and thread count
+	proc_count();
+	//	Adds thread numbers --> inspects thread parallelization
+	//	omp critical
+	thread_array_add();
+	//	parallel function call
+	call_parallel();
+
 }
 
