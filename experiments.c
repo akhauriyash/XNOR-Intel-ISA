@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include "omp.h"
 #include <stdlib.h>
-int f(int x){return x++;}
-int g(int x){return x*x;}
-int h(int x){return x*x;}
+int f(int x){x++; return x;}
+int g(int x){x = x*x*x; return x;}
+int h(int x){x = x*x; return x;}
+
 void main(){
 	printf("Processor count: %d \n", omp_get_num_procs());
 	int tsum = 0;
@@ -27,7 +28,7 @@ void main(){
 	{
 		int num = omp_get_thread_num();
 		if(num == 0)	fresult = f(x);
-		else if(num==1)	hresult = g(x);
+		else if(num==1)	gresult = g(x);
 		else if(num==2) hresult = h(x);
 	}
 	result = fresult + gresult + hresult;
