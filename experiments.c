@@ -15,7 +15,7 @@ void main(){
 	#pragma omp parallel shared(tsum)
 	{
 		arr[omp_get_thread_num()] = omp_get_thread_num();
-		#pragma omp critical
+		#pragma omp critical	//	Might slow down parallelization due to synchronization
 			tsum += arr[omp_get_thread_num()];
 	}
 	printf("\nSum with omp critical %d\n", tsum);
