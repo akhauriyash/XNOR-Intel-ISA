@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "omp.h"
 #include <stdlib.h>
+
 int f(int x){x++; return x;}
 int g(int x){x = x*x*x; return x;}
 int h(int x){x = x*x; return x;}
@@ -10,17 +11,21 @@ void main(){
 	int tsum = 0;
 	printf("Thread count: %d \n", omp_get_num_threads());
 	int arr[8] = {5, 5, 5, 5, 5, 5, 5, 5};
-	#pragma omp parallel
+	//	Index number of array = thread number
+	#pragma omp parallel shared(tsum)
 	{
 		arr[omp_get_thread_num()] = omp_get_thread_num();
+		#pragma omp critical
+			tsum += arr[omp_get_thread_num()];
 	}
-
+	printf("\nSum with omp critical %d\n", tsum);
+	tsum = 0;
+	//	Serial summation of thread numbers
 	for(int i = 0; i < 8; i++){
 		tsum += arr[i];
 		printf("%d\t", arr[i]);
 	}
-
-	printf("\nSum: %d\n", tsum);
+	printf("\nSum with for loop : %d\n", tsum);
 
 	double result, fresult, gresult, hresult;
 	int x = 2;
