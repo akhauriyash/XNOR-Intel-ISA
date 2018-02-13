@@ -1,4 +1,12 @@
 #include "include.h"
+'''
+	Execute this as
+	gcc example.c -fopenmp -lm
+	in the terminal.
+'''
+int f(int x){x++; return x;}
+int g(int x){x = x*x*x; return x;}
+int h(int x){x = x*x; return x;}
 
 void main(){
 	//	Gives processor and thread count
@@ -9,7 +17,12 @@ void main(){
 	//	Parallel function call
 	call_parallel();
 	//	Parallel thread bounds --> Make some 'x' thread numbers do something
+	//	parallel do and parallel for do not create a team of threads.
+	//	they take active team of threads and divide loop iterations over them
+	//	thus omp parallel for/do needs to be inside a parallel region.
 	thread_limiter();
+	//	Calculates pi
+	pi();
 }
 
 void proc_count(){
@@ -89,3 +102,21 @@ void thread_limiter(){
 	}
 }
 
+void pi(){
+	int N = 72;
+	float arr[N];
+	float granularity = 1/((float) N);
+	float val = 0;
+	#pragma omp parallel
+	{
+		#pragma omp for
+		for(int i = 0; i < N; i ++){
+			arr[i] = granularity*(sqrt(1 - (i*granularity)*(i*granularity)));
+		}
+	}
+	for(int i = 0; i < N; i++){
+		val += arr[i];
+	}
+	val = 4*val;
+	printf("\nEstimation of pi: %f\n", val);
+}
