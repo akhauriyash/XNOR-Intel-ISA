@@ -1,7 +1,7 @@
 #include "include.h"
 '''
 	Execute this as
-	gcc example.c -fopenmp -lm
+	gcc experiments.c -fopenmp -lm
 	in the terminal.
 '''
 int f(int x){x++; return x;}
