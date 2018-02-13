@@ -1,9 +1,9 @@
 #include "include.h"
-'''
-	Execute this as
-	gcc experiments.c -fopenmp -lm
-	in the terminal.
-'''
+// 
+// 	Execute this as
+// 	gcc experiments.c -fopenmp -lm
+// 	in the terminal.
+// 
 int f(int x){x++; return x;}
 int g(int x){x = x*x*x; return x;}
 int h(int x){x = x*x; return x;}
