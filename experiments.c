@@ -23,6 +23,10 @@ void main(){
 	thread_limiter();
 	//	Calculates pi
 	pi();
+	//	Loop schedules: Static and Dynamic
+	//	Static: Purely based on number of iterations and number of threads
+	//	Dynamic: load balancing --> Iteration assigned to unoccupied threads
+	schedules();
 }
 
 void proc_count(){
@@ -103,6 +107,7 @@ void thread_limiter(){
 }
 
 void pi(){
+	printf("\n\n***************pi()**************\n");
 	int N = 72;
 	float arr[N];
 	float granularity = 1/((float) N);
@@ -119,4 +124,8 @@ void pi(){
 	}
 	val = 4*val;
 	printf("\nEstimation of pi: %f\n", val);
+}
+
+void schedules(){
+
 }
