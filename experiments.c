@@ -13,13 +13,14 @@ void main(){
 }
 
 void proc_count(){
+	printf("\n\n***************proc_count()**************\n");
 	printf("Processor count: %d \n", omp_get_num_procs());
 	printf("Thread count: %d \n", omp_get_num_threads());
 }
 
 void thread_array_add(){
+	printf("\n\n***************thread_array_add()**************\n");
 	int tsum = 0;
-
 	int arr[8] = {5, 5, 5, 5, 5, 5, 5, 5};
 	//	Index number of array = thread number
 	#pragma omp parallel shared(tsum)
@@ -28,7 +29,7 @@ void thread_array_add(){
 		#pragma omp critical	//	Might slow down parallelization due to synchronization
 			tsum += arr[omp_get_thread_num()];
 	}
-	printf("\nSum with omp critical %d\n", tsum);
+	printf("\nSum with omp critical: %d\n", tsum);
 	tsum = 0;
 	//	Serial summation of thread numbers
 	for(int i = 0; i < 8; i++){
@@ -38,7 +39,11 @@ void thread_array_add(){
 	printf("\nSum with for loop : %d\n", tsum);
 }
 
+void print_parallel(){
+	printf("\t\tThread num: %d\n", omp_get_thread_num());
+}
 void call_parallel(){
+	printf("\n\n***************call_parallel()**************\n");
 	double result, fresult, gresult, hresult;
 	int x = 2;
 	#pragma omp parallel
@@ -57,6 +62,7 @@ void call_parallel(){
 
 
 void thread_limiter(){
+	printf("\n\n***************thread_limiter()**************\n");
 	//	Using pragma omp parallel
 	printf("With parallel region around the loop and adjusting loop bounds:\n");
 	int N = 8;
@@ -67,16 +73,19 @@ void thread_limiter(){
 		int low = N*threadnum/numthreads;
 		int high = N*(threadnum+1)/numthreads;
 		for(int i = low; i < high; i++){
-			printf("Thread %d doing the loop\n", omp_get_thread_num());
+			printf("\tThread %d doing the loop\n", omp_get_thread_num());
 		}
 	}
 	//	Using pragma omp parallel with omp for
 	printf("With parallel for pragma:\n");
 	#pragma omp parallel
-	#pragma omp for
-		for(int i = 0; i < N; i++){
-			printf("Thread %d doing the loop\n", omp_get_thread_num());
-		}
-	
+	{
+		printf("\tRunning parallel for pragma\n");
+		print_parallel();
+		#pragma omp for
+			for(int i = 0; i < N; i++){
+				printf("\t\tThread %d doing the loop\n", omp_get_thread_num());
+			}
+	}
 }
 
