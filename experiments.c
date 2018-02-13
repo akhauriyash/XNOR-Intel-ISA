@@ -4,16 +4,13 @@ void main(){
 	//	Gives processor and thread count
 	proc_count();
 	//	Adds thread numbers --> inspects thread parallelization
-	//	omp critical
+	//	Omp critical
 	thread_array_add();
-	//	parallel function call
+	//	Parallel function call
 	call_parallel();
+	//	Parallel thread bounds --> Make some 'x' thread numbers do something
+	thread_limiter();
 }
-
-
-int f(int x){x++; return x;}
-int g(int x){x = x*x*x; return x;}
-int h(int x){x = x*x; return x;}
 
 void proc_count(){
 	printf("Processor count: %d \n", omp_get_num_procs());
@@ -58,4 +55,28 @@ void call_parallel(){
 	printf("%f\n", result);
 }
 
+
+void thread_limiter(){
+	//	Using pragma omp parallel
+	printf("With parallel region around the loop and adjusting loop bounds:\n");
+	int N = 8;
+	#pragma omp parallel
+	{
+		int threadnum = omp_get_thread_num();
+		int numthreads = omp_get_num_threads();
+		int low = N*threadnum/numthreads;
+		int high = N*(threadnum+1)/numthreads;
+		for(int i = low; i < high; i++){
+			printf("Thread %d doing the loop\n", omp_get_thread_num());
+		}
+	}
+	//	Using pragma omp parallel with omp for
+	printf("With parallel for pragma:\n");
+	#pragma omp parallel
+	#pragma omp for
+		for(int i = 0; i < N; i++){
+			printf("Thread %d doing the loop\n", omp_get_thread_num());
+		}
+	
+}
 
