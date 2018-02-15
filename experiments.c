@@ -41,11 +41,14 @@ void main(){
 	private_demo();	
 	//	Default demo:
 	//		First and last private
-	//		Array data (Static and dynamic allocation)
 	//		default(), private(), shared()
-	default_demo();	//	To be done
-	array_data();
-
+		default_demo();	//	To be done
+	//		Demo of firstprivate, static and dynamic array allocation
+		array_data();
+	//	Thread private initialization
+	thread_privacy();
+	//	copyin and copyprivate
+	copy_in_private();
 
 }
 
@@ -284,4 +287,23 @@ declaration.\n");
 	}
 	printf("\n");
 
+}
+
+
+void thread_privacy(){
+	printf("\n\n***************thread_privacy()**************\n");
+	static int tp;
+	#pragma omp threadprivate(tp)
+	{
+		#pragma omp parallel num_threads(5)
+			tp = omp_get_thread_num();
+		#pragma omp parallel num_threads(9)
+			printf("Thread %d has %d\n", omp_get_thread_num(), tp);
+	}
+	printf("Play around with the num_threads in both loops and examine the results.\n");
+}
+
+void copy_in_private(){
+	printf("\n\n***************copy_in_private()**************");
+	printf("\nTO BE DONE\n");
 }
