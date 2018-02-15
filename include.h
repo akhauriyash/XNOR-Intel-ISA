@@ -15,3 +15,4 @@ void pi();
 // void schedules_pi();
 void section_demo();
 void single_master_demo();
+void private_demo();
