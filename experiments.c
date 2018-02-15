@@ -27,7 +27,7 @@ void main(){
 	//		Static: Purely based on number of iterations and number of threads
 	//		Dynamic: load balancing --> Iteration assigned to unoccupied threads
 	//	'''LEFT --> DO IT'''
-	// schedules_pi();
+	schedules_pi();	// To be done
 	//	Work sharing
 	//		for/do 		-->		divide loop iterations among themselves
 	//		sections 	-->		
@@ -38,7 +38,13 @@ void main(){
 	//	data declared outside the parallel region will be shared
 	//		Private data
 	//			private data inside a #pragma omp ahs no storage association with the global one
-	private_demo();
+	private_demo();	
+	//	Default demo:
+	//		First and last private
+	//		Array data (Static and dynamic allocation)
+	//		default(), private(), shared()
+	default_demo();	//	To be done
+	array_data();
 
 
 }
@@ -140,6 +146,10 @@ void pi(){
 	printf("\nEstimation of pi: %f\n", val);
 }
 
+void schedules_pi(){
+	printf("\n\n***************schedules_pi()**************\n");
+	printf("\nTO BE DONE\n");
+}
 
 void section_demo(){
 	//	Parallel loop --> Independent numbered work units
@@ -215,13 +225,56 @@ void single_master_demo(){
 void private_demo(){
 	int x = 5;
 	printf("Global x declared to be %d\n", x);
-	printf("Setting a local variable x equal to omp_get_thread_num():\n");
-	#pragma omp parallel
+	printf("Setting the private variable x equal to omp_get_thread_num():\n");
+	#pragma omp parallel private(x)
 	{
-		int x;	x=0;
-		x += omp_get_thread_num();
-		printf("\tLocal x inside omp parallel is %d\n", x);
+		x = omp_get_thread_num();
+		printf("\tLocal x inside omp parallel private(x) is %d\n", x);
 	}
 	printf("Printing x outside #pragma omp parallel: %d\n", x);
 	printf("This x is the global x. Thus there is no \n\tstorage association between the global and local x.\n");
+
+}
+
+void default_demo(){
+	printf("\n\n***************default_demo()**************\n");
+	printf("\nTO BE DONE\n");
+}
+
+void array_data(){
+	printf("\n\n***************array_data()**************\n");
+	int size = 8;
+	int static_array[size];
+	int *dyn_array = (int*) malloc(size*sizeof(int));
+	#pragma omp parallel firstprivate(dyn_array)
+	{
+		int t = omp_get_thread_num();
+		dyn_array += t;
+		dyn_array[0] = t;
+	}
+	#pragma omp parallel firstprivate(static_array)
+	{	
+		int t = omp_get_thread_num();
+		static_array[t] = t;
+	}
+	printf("Result of dynamic allocation with firstprivate(dynamic_array)\n");
+	for(int ii = 0; ii < size; ii++){
+		printf("%d ", dyn_array[ii]);
+	}
+	printf("\n");
+	printf("Result of static allocation with firstprivate(static_array)\n");
+	for(int ii = 0; ii < size; ii++){
+		printf("%d ", static_array[ii]);
+	}
+	printf("\n");
+	printf("Static allocation\n");
+	#pragma omp parallel
+	{	
+		int t = omp_get_thread_num();
+		static_array[t] = t;
+	}
+	for(int ii = 0; ii < size; ii++){
+		printf("%d ", static_array[ii]);
+	}
+	printf("\n");
 }
