@@ -24,16 +24,21 @@ void main(){
 	//	Calculates pi
 	pi();
 	//	Loop schedules: Static and Dynamic
-	//	Static: Purely based on number of iterations and number of threads
-	//	Dynamic: load balancing --> Iteration assigned to unoccupied threads
+	//		Static: Purely based on number of iterations and number of threads
+	//		Dynamic: load balancing --> Iteration assigned to unoccupied threads
 	//	'''LEFT --> DO IT'''
 	// schedules_pi();
 	//	Work sharing
-	//	for/do 		-->		divide loop iterations among themselves
-	//	sections 	-->		
+	//		for/do 		-->		divide loop iterations among themselves
+	//		sections 	-->		
 	section_demo();
-	//	single		--> 	Do a specific task on a single thread
+	//		single		--> 	Do a specific task on a single thread
 	single_master_demo();
+	//	Shared data
+	//	data declared outside the parallel region will be shared
+	//		Private data
+	//			private data inside a #pragma omp ahs no storage association with the global one
+	private_demo();
 
 
 }
@@ -205,4 +210,18 @@ void single_master_demo(){
 	}
 	printf("a: %d\t Calculated on a single thread. ==> f(4)\n", a);
 	printf("y: %d\t Using reduction clause with sections.\n", y);
+}
+
+void private_demo(){
+	int x = 5;
+	printf("Global x declared to be %d\n", x);
+	printf("Setting a local variable x equal to omp_get_thread_num():\n");
+	#pragma omp parallel
+	{
+		int x;	x=0;
+		x += omp_get_thread_num();
+		printf("\tLocal x inside omp parallel is %d\n", x);
+	}
+	printf("Printing x outside #pragma omp parallel: %d\n", x);
+	printf("This x is the global x. Thus there is no \n\tstorage association between the global and local x.\n");
 }
