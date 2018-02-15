@@ -18,3 +18,5 @@ void single_master_demo();
 void private_demo();
 void default_demo();
 void array_data();
+void thread_privacy();
+void copy_in_private();
