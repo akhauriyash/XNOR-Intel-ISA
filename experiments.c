@@ -32,10 +32,9 @@ void main(){
 	//	for/do 		-->		divide loop iterations among themselves
 	//	sections 	-->		
 	section_demo();
-	//	single		--> 
+	//	single		--> 	Do a specific task on a single thread
 	single_master_demo();
-	//	task		-->
-	//	workshare	-->
+
 
 }
 
@@ -147,20 +146,33 @@ void section_demo(){
 	#pragma omp sections
 	{
 		#pragma omp section
+		{
 			y1 = f(x);
+			printf("\tf: %d\n", omp_get_thread_num());
+		}
 		#pragma omp section
-			y2 = g(x);
+		{
+			y2 =  g(x);
+			printf("\tg: %d\n", omp_get_thread_num());
+		}
 	}
 	y = y1+y2;
-	printf("y: %d\t y1: %d\t y2: %d\t sing section in sections\n", y, y1, y2);
+	printf("y: %d\t y1: %d\t y2: %d\t Using section in sections\n", y, y1, y2);
 	//	using reduction [No need to declare y1, y2]
 	y = 0;
+	printf("Thread number for:\n");
 	#pragma omp parallel sections reduction(+:y)
 	{
 		#pragma omp section
+		{
 			y += f(x);
+			printf("\tf: %d\n", omp_get_thread_num());
+		}
 		#pragma omp section
+		{
 			y += g(x);
+			printf("\tg: %d\n", omp_get_thread_num());
+		}
 	}
 	printf("y: %d\t\t\t\t Using reduction clause with sections.\n\t\t\t\t^^No need to declare y1 and y2 here\n", y);
 }
@@ -169,18 +181,28 @@ void single_master_demo(){
 	printf("\n\n***************single_master_demo()**************\n");
 	//	single Limits execution of block to a single thread
 	int x = 4; int a, y;
+	printf("Thread number for:\n");
 	#pragma omp parallel
 	{
 		#pragma omp single //Single line computation
+		{
 			a = f(x);
-		#pragma omp parallel sections reduction(+:y)
+			printf("\ta: %d\n", omp_get_thread_num());
+		}
+		#pragma omp sections reduction(+:y)
 		{
 			#pragma omp section
+			{
 				y += f(x);
+				printf("\tf: %d\n", omp_get_thread_num());
+			}
 			#pragma omp section
+			{
 				y += g(x);
+				printf("\tg: %d\n", omp_get_thread_num());
+			}
 		}
 	}
+	printf("a: %d\t Calculated on a single thread. ==> f(4)\n", a);
 	printf("y: %d\t Using reduction clause with sections.\n", y);
-	printf("a: %d\t Calculated on a single thread.\n", a);
 }
