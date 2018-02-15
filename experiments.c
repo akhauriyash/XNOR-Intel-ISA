@@ -252,29 +252,36 @@ void array_data(){
 		dyn_array += t;
 		dyn_array[0] = t;
 	}
-	#pragma omp parallel firstprivate(static_array)
-	{	
-		int t = omp_get_thread_num();
-		static_array[t] = t;
-	}
-	printf("Result of dynamic allocation with firstprivate(dynamic_array)\n");
+	printf("Private variables are created with undefined values.\n");
+	printf("We force their initialization with firstprivate()\n\n");
+	printf("Result of dynamic allocation with firstprivate(dynamic_array)\n\n");
 	for(int ii = 0; ii < size; ii++){
 		printf("%d ", dyn_array[ii]);
 	}
-	printf("\n");
-	printf("Result of static allocation with firstprivate(static_array)\n");
+	printf("\n\n");
+	printf("Result of Static allocation with firstprivate.\n\n");
+	#pragma omp parallel firstprivate(static_array)
+	{	
+		int t = omp_get_thread_num();
+		static_array[t] += t;
+	}
 	for(int ii = 0; ii < size; ii++){
 		printf("%d ", static_array[ii]);
 	}
-	printf("\n");
-	printf("Static allocation\n");
+	printf("\n\nGarbage values because firstprivate forces initialization\n of private \
+array to global assigned values, which were\n not initialized in the static\
+declaration.\n");
+	printf("\n");	
+	printf("Result of Static allocation\n");
 	#pragma omp parallel
 	{	
 		int t = omp_get_thread_num();
 		static_array[t] = t;
+		int lastprivate_var = 24;
 	}
 	for(int ii = 0; ii < size; ii++){
 		printf("%d ", static_array[ii]);
 	}
 	printf("\n");
+
 }
