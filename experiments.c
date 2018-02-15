@@ -26,7 +26,17 @@ void main(){
 	//	Loop schedules: Static and Dynamic
 	//	Static: Purely based on number of iterations and number of threads
 	//	Dynamic: load balancing --> Iteration assigned to unoccupied threads
-	schedules();
+	//	'''LEFT --> DO IT'''
+	// schedules_pi();
+	//	Work sharing
+	//	for/do 		-->		divide loop iterations among themselves
+	//	sections 	-->		
+	section_demo();
+	//	single		--> 
+	single_master_demo();
+	//	task		-->
+	//	workshare	-->
+
 }
 
 void proc_count(){
@@ -126,6 +136,35 @@ void pi(){
 	printf("\nEstimation of pi: %f\n", val);
 }
 
-void schedules(){
 
+void section_demo(){
+	//	Parallel loop --> Independent numbered work units
+	//	Predermined work units --> Sections
+	//	y = f(x) + g(x)
+	printf("\n\n***************section_demo()**************\n");
+	int x = 5;
+	int y, y1, y2;
+	#pragma omp sections
+	{
+		#pragma omp section
+			y1 = f(x);
+		#pragma omp section
+			y2 = g(x);
+	}
+	y = y1+y2;
+	printf("y: %d\t y1: %d\t y2: %d\t using section in sections\n", y, y1, y2);
+	//	using reduction [No need to declare y1, y2]
+	y = 0;
+	#pragma omp parallel sections reduction(+:y)
+	{
+		#pragma omp section
+			y += f(x);
+		#pragma omp section
+			y += g(x);
+	}
+	printf("y: %d\t\t\t\t using reduction clause with sections.\n\t\t\t\t^^No need to declare y1 and y2 here\n", y);
+}
+
+void single_master_demo(){
+	//	Limits execution of block to a single therad
 }
