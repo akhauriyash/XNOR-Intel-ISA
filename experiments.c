@@ -9,6 +9,7 @@ int g(int x){x = x*x*x; return x;}
 int h(int x){x = x*x; return x;}
 
 void main(){
+	clock_t begin = clock();
 	//	Gives processor and thread count
 	proc_count();
 	//	Adds thread numbers --> inspects thread parallelization
@@ -49,6 +50,13 @@ void main(){
 	thread_privacy();
 	//	copyin and copyprivate
 	copy_in_private();
+	//	Reductions
+	reduction();
+	//	cacheline
+	cache_line();
+	clock_t end = clock();
+	double k = ((double) (end - begin))/CLOCKS_PER_SEC;
+	printf("Time for execution of all functions: %f s\n", k);
 
 }
 
@@ -304,6 +312,68 @@ void thread_privacy(){
 }
 
 void copy_in_private(){
-	printf("\n\n***************copy_in_private()**************");
-	printf("\nTO BE DONE\n");
+	printf("\n\n***************copy_in_private()**************\n");
+	printf("TO BE DONE\n");
+}
+
+
+void reduction(){
+	printf("\n\n***************reduction()**************\n");
+	//	Ineffective critical parallelization
+	int result = 0;	int N = 8;
+	#pragma omp parallel 
+	{
+		int local_result;
+		#pragma omp for
+		for (int i = 0; i < N; i++)
+		{
+			local_result = f(i);
+			#pragma omp critical
+				result += local_result;
+		}
+	}
+	printf("Ineffective critical loop result: %d\n", result);
+	result = 0;
+	#pragma omp parallel reduction(+:result)
+	{
+		int local_result;
+		#pragma omp for
+		for (int i = 0; i < N; i++)
+		{
+			result += f(i);
+		}
+	}
+	printf("Reduction loop result: %d\n\n", result);
+
+}
+
+
+void cache_line(){
+	printf("First implementation has a shared cacheline. Thus \n\
+ a lot of bandwidth and time is spent on updating each\n others copy\
+ of this cacheline\n");
+	int result= 0, local_results_f[3]; int x = 4;
+	#pragma omp parallel
+	{
+		int num = omp_get_thread_num();
+		if(num==0)			local_results_f[num] = f(x);
+		else if (num==1)	local_results_f[num] = g(x);
+		else if (num==2)	local_results_f[num] = h(x);
+	}
+	result = local_results_f[0] + local_results_f[1] + local_results_f[2];
+	printf("\tFalse sharing Result: %d\n", result);
+	
+	printf("False sharing can be prevented by giving each thread its own cacheline:\n");
+	result = 0;
+	int local_results[3][8];
+	#pragma omp parallel
+	{
+		int num = omp_get_thread_num();
+		if(num==0)			local_results[num][1] = f(x);
+		else if (num==1)	local_results[num][1] = g(x);
+		else if (num==2)	local_results[num][1] = h(x);
+	}
+	result = local_results[0][1] + local_results[1][1] + local_results[2][1];
+	printf("\tOwn cacheline Result: %d\n", result);
+
 }
