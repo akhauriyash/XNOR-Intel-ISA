@@ -2,6 +2,7 @@
 #include "omp.h"
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 int f(int x);
 int g(int x);
@@ -20,3 +21,5 @@ void default_demo();
 void array_data();
 void thread_privacy();
 void copy_in_private();
+void reduction();
+void cache_line();
