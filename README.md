@@ -1,7 +1,9 @@
 # XNOR Intel ISA
 Attempting to implement XNOR neural network functions (Convolution, GEMM ...) on Intel ISA.
+*XNOR functions are yet to be implemented*
+For CUDA compatiable (Nvidia GPU) XNOR convolutional kernel, check out [this repository.](https://github.com/akhauriyash/XNOR-convolution)
+
   * The first part of this project aims to create an introductory c file to teach people about OpenMP and parallel programming
-  *XNOR functions are yet to be implemented*
 ##  Prerequisites:
   * Intel® Xeon Phi™ Processor (Any Intel processor should do but code shall attempt to leverage AVX-512 ISA exclusively)
     
