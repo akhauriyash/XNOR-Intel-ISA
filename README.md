@@ -13,5 +13,4 @@ Attempting to implement neural network functions (Convolution, GEMM ...) on Inte
   - [ ] Upload codes
   - [ ] Update code gists
   - [ ] Create CLI
-  - [ ] Create function timers
-  - [ ] Link main function with parser
+
