@@ -140,18 +140,19 @@ void thread_limiter(){
 void pi(){
 	printf("\n\n***************pi()**************\n");
 	int N = 72;
-	float arr[N];
 	float granularity = 1/((float) N);
 	float val = 0;
 	#pragma omp parallel
 	{
+		double sum;
+		// local sum variable on every thread
 		#pragma omp for
-		for(int i = 0; i < N; i ++){
-			arr[i] = granularity*(sqrt(1 - (i*granularity)*(i*granularity)));
+		for(int i = 0, sum=0.0; i < N; i ++){
+			sum = granularity*(sqrt(1 - (i*granularity)*(i*granularity)));
 		}
-	}
-	for(int i = 0; i < N; i++){
-		val += arr[i];
+		// Critical section for local sum, can use atomic too
+		#pragma omp critical
+			val += sum;
 	}
 	val = 4*val;
 	printf("\nEstimation of pi: %f\n", val);
