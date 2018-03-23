@@ -17,8 +17,6 @@
 #define MX_SIZE				8192
 #define NUM_OF_THREADS		64
 #define TEST_LOOP			64
-// double x = (double)rand() / RAND_MAX;
-// 		Ker_h[i] = (x < 0.5) ? -1 : 1;
 
 int main( void )
 {
@@ -64,7 +62,6 @@ int main( void )
 	{
 		pC[i] = 0;
 	}
-
 	__attribute__( ( aligned( 64 ) ) ) BINTYPE *bA = NULL;
 	bA = ( BINTYPE * )_mm_malloc((m*p/32)*sizeof(BINTYPE), 64);
 	__attribute__( ( aligned( 64 ) ) ) BINTYPE *bB = NULL;
@@ -102,7 +99,6 @@ int main( void )
 				tbB = 0;
 				for(int j = 0; j < 32; j++)
 				{
-					//				 i+seg*32*n + j*n
 					sign = (int) (pB[i+seg*32*n + j*n] >= 0);
 					tbB = tbB|(sign<<j);
 				}
@@ -112,15 +108,10 @@ int main( void )
 	}
 	dTimeE = dsecnd();
 	printf( "\nBinarization B - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ) / TEST_LOOP );
-	
+	for(int i = 0; i<4; i++){
+		for(j = 0; j<5; j++){
+			printf("%u\t", bB[i, j]);
+		}
+	}
 
-	printf("\n\n\n");
-	printf("\n\nbA and bB has been binarized successfully, give treat!\n\n");
-	for(int i = 0; i < 50; i++){
-		printf("%u\t", bA[0, i]);
-	}
-	printf("\n\n\n");
-	for(int i = 0; i < 50; i++){
-		printf("%u\t", bB[0, i]);
-	}
 }
