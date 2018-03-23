@@ -9,7 +9,7 @@
 
 //	To compile:
 //		Check available nodes with pbsnodes, Note that skylake does not support AVXER/PF
-//		icpc -03 -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 binarize.c -o bins.out
+//		icpc -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 binarize.c -o bins.out
 //		echo ~/parallel/bins.out | qsub 
 
 #define FPUTYPE				float
@@ -73,4 +73,7 @@ int main( void )
 		}
 	}
 	printf("\nbA has been binarized successfully, give treat!\n");
+	for(int i = 0; i < 50; i++){
+		printf("%u\t", bA[0, i]);
+	}
 }
