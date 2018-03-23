@@ -7,10 +7,15 @@
 #include <math.h>
 #include <mkl.h>
 
+//	To compile:
+//		Check available nodes with pbsnodes, Note that skylake does not support AVXER/PF
+//		icpc -03 -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 binarize.c -o bins.out
+//		echo ~/parallel/bins.out | qsub 
+
 #define FPUTYPE				float
+#define BINTYPE				unsigned int
 #define MX_SIZE				256
 #define NUM_OF_THREADS		64
-#define LOOP_COUNT			16
 
 
 int main( void )
@@ -50,8 +55,9 @@ int main( void )
 	for( i = 0; i < (m*n); i += 1 )
 		pC[i] = 0.0;
 
-	int sign; unsigned int tbA;
-	__attribute__( ( aligned( 64 ) ) ) unsigned int *bA = NULL;
+	int sign; BINTYPE tbA;
+	__attribute__( ( aligned( 64 ) ) ) BINTYPE *bA = NULL;
+	bA = ( BINTYPE * )_mm_malloc((m*p)*sizeof(BINTYPE), 64);
 	#pragma omp parallel for
 	for (int i = 0; i < MX_SIZE; i++)
 	{
@@ -60,7 +66,7 @@ int main( void )
 			tbA = 0;
 			for(int j = 0; j < 32; j++)
 			{
-				sign = (int) (A[i*n+seg*MX_SIZE/32 + j]);
+				sign = (int) (pA[i*n+seg*MX_SIZE/32 + j]);
 				tbA = tbA|(sign<<j);
 			}
 		bA[seg, i] = tbA;
