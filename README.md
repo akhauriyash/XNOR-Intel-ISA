@@ -16,6 +16,7 @@ For CUDA compatiable (Nvidia GPU) XNOR convolutional kernel, check out [this rep
   (matrix size: 8192)
  
 KMP_AFFINITY=scatter 
+
 `Number of OpenMP threads:  64`
 
 `Binarization A - Completed in: 0.0059493 seconds`
@@ -23,6 +24,7 @@ KMP_AFFINITY=scatter
 `Binarization B - Completed in: 0.0994816 seconds`
 
 KMP_AFFINITY=balanced, granularity=fine
+
 `Number of OpenMP threads:  64`
 
 `Binarization A - Completed in: 0.0065423 seconds`
@@ -30,6 +32,7 @@ KMP_AFFINITY=balanced, granularity=fine
 `Binarization B - Completed in: 0.0957288 seconds`
 
 KMP_AFFINITY=compact
+
 `Number of OpenMP threads:  64`
 
 `Binarization A - Completed in: 0.0170125 seconds`
