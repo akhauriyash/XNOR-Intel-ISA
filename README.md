@@ -14,7 +14,7 @@ For CUDA compatiable (Nvidia GPU) XNOR convolutional kernel, check out [this rep
   
   Run the binarize.c code. In the preliminary round, the results are as such:
   (matrix size: 8192)
- 
+## Binarization:
 KMP_AFFINITY=scatter 
 
 `Number of OpenMP threads:  64`
