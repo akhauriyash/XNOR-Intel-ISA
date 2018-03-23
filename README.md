@@ -14,8 +14,11 @@ For CUDA compatiable (Nvidia GPU) XNOR convolutional kernel, check out [this rep
   
   Run the binarize.c code. In the preliminary round, the results are as such:
   (matrix size: 8192)
+  
 `Number of OpenMP threads:  64`
+
 `Binarization A - Completed in: 0.0059493 seconds`
+
 `Binarization B - Completed in: 0.0994816 seconds`
 
 As matrices are cached in row major format and we access B column wise, it is no surprise that the binarization of B is so slow. It might be a better idea to first transpose the B matrix, and then do the binarization process for more cache hits. This is a very basic optimization technique. The binarization algorithm has a lot of scope for parallelization. 
