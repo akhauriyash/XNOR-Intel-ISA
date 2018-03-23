@@ -9,15 +9,14 @@
 #include <iostream>
 
 //	To compile:
-//		Check available nodes with pbsnodes, Note that skylake does not support AVXER/PF
-//		icpc -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 binarize.c -o bins.out
-//		echo ~/parallel/bins.out | qsub 
+//	Check available nodes with pbsnodes, Note that skylake does not support AVXER/PF
+//	icpc -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 binarize.c -o bins.out && echo ~/parallel/bins.out | qsub 
 
 #define FPUTYPE				float
 #define BINTYPE				unsigned int
-#define MX_SIZE				256
+#define MX_SIZE				8192
 #define NUM_OF_THREADS		64
-
+#define TEST_LOOP			64
 // double x = (double)rand() / RAND_MAX;
 // 		Ker_h[i] = (x < 0.5) ? -1 : 1;
 
@@ -59,39 +58,69 @@ int main( void )
 	for( i = 0; i < (p*n); i += 1 )
 	{
 		double x = (double) rand()/RAND_MAX;
-		pB[i] = ( x < 0.5 ) ? -1 : 1;
+		pB[i] = ( x > 0.5 ) ? -1 : 1;
 	}
 	for( i = 0; i < (m*n); i += 1 )
 	{
 		pC[i] = 0;
 	}
 
-//	Temporary loop to print and view pA
-	for(int i = 0; i < 50; i++){
-		printf("%f\t", pA[i]);
-	}
-
 	__attribute__( ( aligned( 64 ) ) ) BINTYPE *bA = NULL;
-	bA = ( BINTYPE * )_mm_malloc((m*p)*sizeof(BINTYPE), 64);
+	bA = ( BINTYPE * )_mm_malloc((m*p/32)*sizeof(BINTYPE), 64);
+	__attribute__( ( aligned( 64 ) ) ) BINTYPE *bB = NULL;
+	bB = ( BINTYPE * )_mm_malloc((p*n/32)*sizeof(BINTYPE), 64);
 
-	int sign; BINTYPE tbA;
+	int sign; BINTYPE tbA; BINTYPE tbB;
 
-	#pragma omp parallel for
-	for (int i = 0; i < MX_SIZE; i++)
-	{
-		for(int seg = 0; seg < MX_SIZE/32; seg++)
+	dTimeS = dsecnd();
+	for(int jj = 0; jj < TEST_LOOP; jj++){
+		#pragma omp parallel for
+		for (int i = 0; i < MX_SIZE; i++)
 		{
-			tbA = 0;
-			for(int j = 0; j < 32; j++)
+			for(int seg = 0; seg < MX_SIZE/32; seg++)
 			{
-				sign = (int) (pA[i*n+seg*MX_SIZE/32 + j] >= 0);
-				tbA = tbA|(sign<<j);
+				tbA = 0;
+				for(int j = 0; j < 32; j++)
+				{
+					sign = (int) (pA[i*n + seg*32 + j] >= 0);
+					tbA = tbA|(sign<<j);
+				}
+			bA[seg, i] = tbA;
 			}
-		bA[seg, i] = tbA;
 		}
 	}
-	printf("\n\nbA has been binarized successfully, give treat!\n\n");
+	dTimeE = dsecnd();
+	printf( "\nBinarization A - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ) / TEST_LOOP);
+	
+	dTimeS = dsecnd();
+	for(int jj = 0; jj < TEST_LOOP; jj++){
+		#pragma omp parallel for
+		for (int i = 0; i < MX_SIZE; i++)
+		{
+			for(int seg = 0; seg < MX_SIZE/32; seg++)
+			{
+				tbB = 0;
+				for(int j = 0; j < 32; j++)
+				{
+					//				 i+seg*32*n + j*n
+					sign = (int) (pB[i+seg*32*n + j*n] >= 0);
+					tbB = tbB|(sign<<j);
+				}
+			bB[seg, i] = tbB;
+			}
+		}
+	}
+	dTimeE = dsecnd();
+	printf( "\nBinarization B - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ) / TEST_LOOP );
+	
+
+	printf("\n\n\n");
+	printf("\n\nbA and bB has been binarized successfully, give treat!\n\n");
 	for(int i = 0; i < 50; i++){
 		printf("%u\t", bA[0, i]);
+	}
+	printf("\n\n\n");
+	for(int i = 0; i < 50; i++){
+		printf("%u\t", bB[0, i]);
 	}
 }
