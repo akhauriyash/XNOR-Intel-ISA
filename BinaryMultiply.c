@@ -161,7 +161,7 @@ int main( void )
 		}
 	}
 	dTimeE = dsecnd();
-	printf( "\nMultiplication - Completed in: %.7f seconds\n\n\n", ( dTimeE - dTimeS ) / TEST_LOOP );
+	printf( "\nMultiplication - Completed in: %.7f seconds\n\n\n", ( dTimeE - dTimeS ) );
 
 	for(int i = 0; i<4; i++){
 		for(j = 0; j<5; j++){
