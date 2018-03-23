@@ -20,28 +20,28 @@
 
 int main( void )
 {
-
 	size_t m, n, p;
 	size_t r, i, j, k;
-	double dTimeS;
-	double dTimeE;
+	double dTimeS, dTimeE;
 	m = p = n = MX_SIZE;
-
 	putenv("KMP_AFFINITY=scatter");
 	// putenv("KMP_AFFINITY=balanced, granularity=fine");
 	// putenv("KMP_AFFINITY=compact");
 	omp_set_num_threads(NUM_OF_THREADS);
 	printf("Number of OpenMP threads: %3d\n", NUM_OF_THREADS);
-	
-	//	Allocating memory for matrices aligned on 64-byte boundary
-	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pA = NULL;
-	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pB = NULL;
-	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pC = NULL;
 
 
-	pA = ( FPUTYPE ** )_mm_malloc(m*sizeof(FPUTYPE *), 64);
-	for(int i = 0; i < m; i++){
-		pA[i] = ( FPUTYPE * )_mm_malloc(p*sizeof(FPUTYPE), 64);
+////////////////////////  Allocate full precision matrices 	///////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+
+	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pA = NULL;		// Allocating memory 
+	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pB = NULL;		// for matrices aligned
+	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pC = NULL;		// on 64-byte boundary
+
+
+	pA = ( FPUTYPE ** )_mm_malloc(m*sizeof(FPUTYPE *), 64);		// These loops can 
+	for(int i = 0; i < m; i++){									// be collapsed
+		pA[i] = ( FPUTYPE * )_mm_malloc(p*sizeof(FPUTYPE), 64);	// as m = n = p = MX_SIZE
 	}
 	pB = ( FPUTYPE ** )_mm_malloc(p*sizeof(FPUTYPE *), 64);
 	for(int i = 0; i < p; i++){
@@ -51,26 +51,26 @@ int main( void )
 	for(int i = 0; i < m; i++){
 		pC[i] = ( FPUTYPE * )_mm_malloc(n*sizeof(FPUTYPE), 64);
 	}
-		if( pA == NULL || pB == NULL || pC == NULL )
-		{
-			printf( "ERROR: Can't allocate memory for matrices\n" );
-			_mm_free( pA );
-			_mm_free( pB );
-			_mm_free( pC );
-			return ( int )0;
-		}
+	if( pA == NULL || pB == NULL || pC == NULL )				// Error handling 
+	{															// if any array is
+		printf( "ERROR: Can't allocate memory for matrices\n" );// not allocated
+		_mm_free( pA );
+		_mm_free( pB );
+		_mm_free( pC );
+		return ( int )0;
+	}
 	for(int j = 0; j < m; j++){
 		for( i = 0; i < p; i++)
 		{
-			FPUTYPE x = (FPUTYPE) rand()/RAND_MAX;
-			pA[j][i] = ( x < 0.5 ) ? -1 : 1;
+			FPUTYPE x = (FPUTYPE) rand()/RAND_MAX;				// Create random
+			pA[j][i] = ( x < 0.5 ) ? -1 : 1;					// +1/-1 matrices
 		}
 	}
 	for(int j = 0; j < p; j++){
 		for( i = 0; i < n; i++)
 		{
-			FPUTYPE x = (FPUTYPE) rand()/RAND_MAX;
-			pB[j][i] = ( x > 0.5 ) ? -1 : 1;
+			FPUTYPE x = (FPUTYPE) rand()/RAND_MAX;				// Create random
+			pB[j][i] = ( x > 0.5 ) ? -1 : 1;					// +1/-1 matrices
 		}
 	}
 	for(int j = 0; j < m; j++){
@@ -79,9 +79,11 @@ int main( void )
 			pC[j][i] = 0;
 		}
 	}
+////////////////////////	Allocate binary matrices 	///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 
-	__attribute__( ( aligned( 64 ) ) ) BINTYPE **bA = NULL;
-	__attribute__( ( aligned( 64 ) ) ) BINTYPE **bB = NULL;
+	__attribute__( ( aligned( 64 ) ) ) BINTYPE **bA = NULL;		// Allocated binary
+	__attribute__( ( aligned( 64 ) ) ) BINTYPE **bB = NULL;		// matrices A and B
 
 	bA = ( BINTYPE ** )_mm_malloc(m*sizeof(BINTYPE *), 64);
 	bB = ( BINTYPE ** )_mm_malloc((p/32)*sizeof(BINTYPE *), 64);
@@ -92,8 +94,10 @@ int main( void )
 	for(int i = 0; i<(p/32); i++){
 		bB[i] = (BINTYPE *)_mm_malloc(n*sizeof(BINTYPE), 64);
 	}
-	
 
+
+////////////////////////	  Binarization of A&B   	///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 	int sign; BINTYPE tbA; BINTYPE tbB;
 
 	dTimeS = dsecnd();
