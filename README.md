@@ -42,7 +42,13 @@ KMP_AFFINITY=compact
 
 As matrices are cached in row major format and we access B column wise, it is no surprise that the binarization of B is so slow. It might be a better idea to first transpose the B matrix, and then do the binarization process for more cache hits. This is a very basic optimization technique. The binarization algorithm has a lot of scope for parallelization. 
 
-  
+## xGEMM (Binarized General Matrix Multiply on Intel Xeon Phi)
+
+Run BinaryMultiply.c for benchmarking the algorithm.
+
+![Alt text](https://github.com/akhauriyash/XNOR-Intel-ISA/blob/master/xGEMM%20benchmark.png?raw=true)
+The image above is representing the results of an extremely crudely optimized code. Will post improvements as they come.
+
 ## To run:
    Execute this as
  	`gcc experiments.c -fopenmp -lm`
