@@ -14,9 +14,15 @@
 
 #define FPUTYPE				float
 #define BINTYPE				unsigned int
-#define MX_SIZE				8192
+#define MX_SIZE				16384
+// #define MX_SIZE				8192
+// #define MX_SIZE				4096
+// #define MX_SIZE				2048
+// #define MX_SIZE				1024
+// #define MX_SIZE				512
+// #define MX_SIZE				256
 #define NUM_OF_THREADS		64
-#define TEST_LOOP			3
+#define TEST_LOOP			10
 
 int main( void )
 {
@@ -79,11 +85,7 @@ int main( void )
 			pC[j][i] = 0;
 		}
 	}
-	for(int i = 0; i<4; i++){
-		for(j = 0; j<5; j++){
-			printf("%f\t", pB[i][j]);
-		}
-	}
+
 	printf("\n\n\n **** STARTING Full precision FUNCTIONS **** \n\n\n");
 ////////////////////////	FP Matrix multiplication 	///////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +105,7 @@ int main( void )
 	}
 	dTimeE = dsecnd();
 	printf( "\nFull precision CMMA - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ) / (double) TEST_LOOP);	
-
+	printf("\nFull precision multiplication result:\n");
 	for(int i = 0; i<4; i++){
 		for(j = 0; j<5; j++){
 			printf("%f\t", pC[i][j]);
@@ -170,11 +172,6 @@ int main( void )
 	}
 	dTimeE = dsecnd();
 	printf( "\nBinarization B - Completed in: %.7f seconds\n\n\n", ( dTimeE - dTimeS ) / TEST_LOOP );
-	for(int i = 0; i<4; i++){
-		for(j = 0; j<5; j++){
-			printf("%u\t", bB[i][j]);
-		}
-	}
 
 //////////////////////// 	Binarized Multiplication  	///////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +192,7 @@ int main( void )
 	}
 	dTimeE = dsecnd();
 	printf( "\nBinarized Multiplication - Completed in: %.7f seconds\n\n\n", ( dTimeE - dTimeS ) / (double) TEST_LOOP);
-
+	printf("\nBinarized multiplication result:\n");
 	for(int i = 0; i<4; i++){
 		for(j = 0; j<5; j++){
 			printf("%f\t", pC[i][j]);
