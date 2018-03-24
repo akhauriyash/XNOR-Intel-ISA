@@ -46,7 +46,7 @@ As matrices are cached in row major format and we access B column wise, it is no
 
 Run BinaryMultiply.c for benchmarking the algorithm.
 
-![Alt text](https://github.com/akhauriyash/XNOR-Intel-ISA/blob/master/xGEMM%20benchmarks.png?raw=true)
+![Alt text](https://github.com/akhauriyash/XNOR-Intel-ISA/blob/master/xGEMM%20benchmarkss.png?raw=true)
 The image above is representing the results of an extremely crudely optimized code. Will post improvements as they come.
 
 ## To run:
