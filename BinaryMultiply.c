@@ -10,15 +10,15 @@
 
 //	To compile:
 //	Check available nodes with pbsnodes, Note that skylake does not support AVXER/PF
-//	icpc -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 binarize.c -o bins.out && echo ~/parallel/bins.out | qsub 
+//	icpc -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 bintest2.c -o bins.out && echo ~/parallel/bins.out | qsub 
 
 #define FPUTYPE				float
 #define BINTYPE				unsigned int
-#define MX_SIZE				16384
+// #define MX_SIZE				16384
 // #define MX_SIZE				8192
 // #define MX_SIZE				4096
 // #define MX_SIZE				2048
-// #define MX_SIZE				1024
+#define MX_SIZE				1024
 // #define MX_SIZE				512
 // #define MX_SIZE				256
 #define NUM_OF_THREADS		64
@@ -30,6 +30,7 @@ int main( void )
 	size_t r, i, j, k, sm;
 	double dTimeS, dTimeE;
 	m = p = n = MX_SIZE;
+	printf("Matrix size: %d x %d\n", m, p);
 	putenv("KMP_AFFINITY=scatter");
 	// putenv("KMP_AFFINITY=balanced, granularity=fine");
 	// putenv("KMP_AFFINITY=compact");
@@ -119,13 +120,13 @@ int main( void )
 	__attribute__( ( aligned( 64 ) ) ) BINTYPE **bB = NULL;		// matrices A and B
 
 	bA = ( BINTYPE ** )_mm_malloc(m*sizeof(BINTYPE *), 64);
-	bB = ( BINTYPE ** )_mm_malloc((p/32)*sizeof(BINTYPE *), 64);
+	bB = ( BINTYPE ** )_mm_malloc(n*sizeof(BINTYPE *), 64);
 
 	for(int i = 0; i<m; i++){
 		bA[i] = (BINTYPE *)_mm_malloc((p/32)*sizeof(BINTYPE), 64);
 	}
-	for(int i = 0; i<(p/32); i++){
-		bB[i] = (BINTYPE *)_mm_malloc(n*sizeof(BINTYPE), 64);
+	for(int i = 0; i<n; i++){
+		bB[i] = (BINTYPE *)_mm_malloc((p/32)*sizeof(BINTYPE), 64);
 	}
 
 ////////////////////////	  Binarization of A&B   	///////////////////////////////
@@ -166,7 +167,7 @@ int main( void )
 					sign = (int) (pB[seg*32 + j][i] >= 0);
 					tbB = tbB|(sign<<j);
 				}
-			bB[seg][i] = tbB;
+			bB[i][seg] = tbB;
 			}
 		}
 	}
@@ -184,7 +185,7 @@ int main( void )
 			for(int j = 0; j < n; j++){
 					temp = 0;
 					for(int sm = 0; sm < p/32; sm++){
-						temp += 2*(__builtin_popcount(~(bA[i][sm]^bB[sm][j]))) - 32;
+						temp += 2*(__builtin_popcount(~(bA[i][sm]^bB[j][sm]))) - 32;
 					}
 				pC[i][j] = temp;
 			}
