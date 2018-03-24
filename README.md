@@ -49,6 +49,19 @@ Run BinaryMultiply.c for benchmarking the algorithm.
 ![Alt text](https://github.com/akhauriyash/XNOR-Intel-ISA/blob/master/xGEMM%20opt%20bmark.png?raw=true)
 The image above is representing the results of an extremely crudely optimized code. Will post improvements as they come.
 
+## Benchmarks
+
+|  Matrix size | CMMA time | xGEMM optimized | **Speedup** | Binarization time | XNOR GEMM time | **Speedup** |
+|  ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+|  16384 | 182.287304 | 2.7664792 | 65.89144209000379 | 0.2814668 | 41.75 | 4.3661629700598805 |
+|  8192 | 14.2204277 | 0.3570589 | 39.826559987721915 | 0.0742801 | 4.4938908 | 3.1643910216954985 |
+|  4096 | 1.5708227 | 0.04895476 | 32.08723114973906 | 0.0114089 | 0.0889784 | 17.65397781933593 |
+|  2048 | 0.1876822 | 0.0041507 | 45.21699954224588 | 0.0024204 | 0.0082477 | 22.755701589534052 |
+|  1024 | 0.0245256 | **0.001247** | **19.667682437850843** | 0.0005667000000000001 | 0.0009867 | 24.8561872909699 |
+|  512 | 0.0071147 | 0.0002131 | 33.38667292351009 | 0.0001167 | 0.0003532 | 20.143544733861834 |
+|  256 | 0.0018346 | 0.0000558 | 32.878136200716845 | 0.0000371 | 0.0000724 | 25.339779005524864 |
+
+
 ## To run:
    Execute this as
  	`gcc experiments.c -fopenmp -lm`
