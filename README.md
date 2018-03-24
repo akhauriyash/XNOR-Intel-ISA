@@ -48,7 +48,6 @@ Run BinaryMultiply.c for benchmarking the algorithm.
 
 ![Alt text](https://github.com/akhauriyash/XNOR-Intel-ISA/blob/master/xGEMM%20benchmarks.png?raw=true)
 The image above is representing the results of an extremely crudely optimized code. Will post improvements as they come.
-*Note that the image above has a Logarithmic vertical axis.
 
 ## To run:
    Execute this as
