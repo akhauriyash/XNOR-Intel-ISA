@@ -16,12 +16,12 @@
 #define BINTYPE				unsigned int
 #define MX_SIZE				8192
 #define NUM_OF_THREADS		64
-#define TEST_LOOP			64
+#define TEST_LOOP			3
 
 int main( void )
 {
 	size_t m, n, p;
-	size_t r, i, j, k;
+	size_t r, i, j, k, sm;
 	double dTimeS, dTimeE;
 	m = p = n = MX_SIZE;
 	putenv("KMP_AFFINITY=scatter");
@@ -53,7 +53,7 @@ int main( void )
 	}
 	if( pA == NULL || pB == NULL || pC == NULL )				// Error handling 
 	{															// if any array is
-		printf( "ERROR: Can't allocate memory for matrices\n" );// not allocated
+		printf( "\nERROR: Can't allocate memory for matrices\n" );// not allocated
 		_mm_free( pA );
 		_mm_free( pB );
 		_mm_free( pC );
@@ -79,6 +79,37 @@ int main( void )
 			pC[j][i] = 0;
 		}
 	}
+	for(int i = 0; i<4; i++){
+		for(j = 0; j<5; j++){
+			printf("%f\t", pB[i][j]);
+		}
+	}
+	printf("\n\n\n **** STARTING Full precision FUNCTIONS **** \n\n\n");
+////////////////////////	FP Matrix multiplication 	///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+	float sum = 0;
+	dTimeS = dsecnd();
+	for(int jj = 0; jj < TEST_LOOP; jj++){
+		#pragma omp parallel for private(i, j, k, sum) num_threads(NUM_OF_THREADS)
+		for(int i = 0; i < m; i++){
+			for(int j = 0; j < n; j++){
+				sum = 0.0;
+				for(int k = 0; k < p; k++){
+					sum += pA[i][k]*pB[k][j];
+				}
+				pC[i][j] = sum;
+			}
+		}
+	}
+	dTimeE = dsecnd();
+	printf( "\nFull precision CMMA - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ) / (double) TEST_LOOP);	
+
+	for(int i = 0; i<4; i++){
+		for(j = 0; j<5; j++){
+			printf("%f\t", pC[i][j]);
+		}
+	}
+	printf("\n\n\n **** STARTING BINARY FUNCTIONS **** \n\n\n");
 ////////////////////////	Allocate binary matrices 	///////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -145,27 +176,29 @@ int main( void )
 		}
 	}
 
-////////////////////////	  Multiplication of A&B   	///////////////////////////////
+//////////////////////// 	Binarized Multiplication  	///////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 	int temp;
+	int storeto;
 	dTimeS = dsecnd();
-	#pragma omp parallel for
-	for(int i = 0; i < m; i++){
-		for(int j = 0; j < n; j++){
-			temp = 0;
-			#pragma omp parallel for reduction(+:temp)
-				for(int sm = 0; sm < p/32; sm++){
-					temp += 2*(__builtin_popcount(~(bA[i][sm]^bB[sm][j]))) - 32;
-				}
-			pC[i][j] = temp;
+	for(int jj = 0; jj < TEST_LOOP; jj++){
+		#pragma omp parallel for private(i, j, sm, temp) num_threads(NUM_OF_THREADS)
+		for(int i = 0; i < m; i++){
+			for(int j = 0; j < n; j++){
+					temp = 0;
+					for(int sm = 0; sm < p/32; sm++){
+						temp += 2*(__builtin_popcount(~(bA[i][sm]^bB[sm][j]))) - 32;
+					}
+				pC[i][j] = temp;
+			}
 		}
 	}
 	dTimeE = dsecnd();
-	printf( "\nMultiplication - Completed in: %.7f seconds\n\n\n", ( dTimeE - dTimeS ) );
+	printf( "\nBinarized Multiplication - Completed in: %.7f seconds\n\n\n", ( dTimeE - dTimeS ) / (double) TEST_LOOP);
 
 	for(int i = 0; i<4; i++){
 		for(j = 0; j<5; j++){
-			printf("%u\t", pC[i][j]);
+			printf("%f\t", pC[i][j]);
 		}
 	}
 }
