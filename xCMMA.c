@@ -10,7 +10,7 @@
 
 //	To compile:
 //	Check available nodes with pbsnodes, Note that skylake does not support AVXER/PF
-//	icpc -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 bintest2.c -o bins.out && echo ~/parallel/bins.out | qsub 
+//	icpc -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 xCMMA.c -o bins.out && echo ~/parallel/bins.out | qsub 
 
 #define FPUTYPE				float
 #define BINTYPE				unsigned int
