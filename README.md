@@ -26,8 +26,11 @@ Run xCONV.c for benchmarking the algorithm.
 ![Alt text](https://github.com/akhauriyash/XNOR-Intel-ISA/blob/master/xCONV%20benchmark.png?raw=true)
 The image above is representing the results of an extremely crudely optimized code. Will post improvements as they come.
 
+**Note that both images have a logarithmic left vertical-axis. 
+
 ## Benchmarks
 **xCONV benchmark** 
+
 |  Matrix Size | FP CONV (s) | xCONV (s) | **Speed up** | Kernel size |
 |  ------ | ------ | ------ | ------ | ------ |
 |  4096 | 0.0354336 | 0.0400825 | 0.8840167155242313 | 4x4 |
@@ -39,6 +42,7 @@ The image above is representing the results of an extremely crudely optimized co
 |  64 | 0.0018215 | 0.0000431 | **42.262180974477964** | 4x4 |
 
 **xGEMM benchmark**
+
 |  Matrix size | CMMA time (s) | xGEMM optimized (s) | **Speedup** | Binarization time (s) | XNOR GEMM time (s) | **Speedup** |
 |  ------ | ------ | ------ | ------ | ------ | ------ | ------ |
 |  16384 | 182.287304 | 2.7664792 | 65.891479 | 0.2814668 | 41.75 | 4.36616805 |
