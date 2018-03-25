@@ -26,7 +26,7 @@ Run xCONV.c for benchmarking the algorithm.
 ![Alt text](https://github.com/akhauriyash/XNOR-Intel-ISA/blob/master/xCONV%20benchmark.png?raw=true)
 The image above is representing the results of an extremely crudely optimized code. Will post improvements as they come.
 
-**Note that both images have a logarithmic left vertical-axis. 
+**Note that both images have a logarithmic left vertical-axis.**
 
 ## Benchmarks
 **xCONV benchmark** 
@@ -49,7 +49,7 @@ The image above is representing the results of an extremely crudely optimized co
 |  8192 | 14.2204277 | 0.3570589 | 39.826555 | 0.0742801 | 4.4938908 | 3.16954985 |
 |  4096 | 1.5708227 | 0.04895476 | 32.08726 | 0.0114089 | 0.0889784 | 17.653933593 |
 |  2048 | 0.1876822 | 0.0041507 | 45.216998 | 0.0024204 | 0.0082477 | 22.75052 |
-|  1024 | 0.0245256 | **0.001247** | **19.6676824** | 0.0005668 | 0.0009867 | 24.809699 |
+|  1024 | 0.0245256 | 0.001247 | 19.6676824 | 0.0005668 | 0.0009867 | 24.809699 |
 |  512 | 0.0071147 | 0.0002131 | 33.3009 | 0.0001167 | 0.0003532 | 20.143534 |
 |  256 | 0.0018346 | 0.0000558 | 32.875 | 0.0000371 | 0.0000724 | 25.339864 |
 
