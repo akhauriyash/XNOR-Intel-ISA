@@ -21,7 +21,7 @@ The image above is representing the results of an extremely crudely optimized co
 
 ## Benchmarks
 
-|  Matrix size | CMMA time | xGEMM optimized | **Speedup** | Binarization time | XNOR GEMM time | **Speedup** |
+|  Matrix size | CMMA time (s) | xGEMM optimized (s) | **Speedup** | Binarization time (s) | XNOR GEMM time (s) | **Speedup** |
 |  ------ | ------ | ------ | ------ | ------ | ------ | ------ |
 |  16384 | 182.287304 | 2.7664792 | 65.891479 | 0.2814668 | 41.75 | 4.36616805 |
 |  8192 | 14.2204277 | 0.3570589 | 39.826555 | 0.0742801 | 4.4938908 | 3.16954985 |
