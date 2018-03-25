@@ -14,13 +14,31 @@ For CUDA compatiable (Nvidia GPU) XNOR convolutional kernel, check out [this rep
   
 ## xGEMM (Binarized General Matrix Multiply on Intel Xeon Phi)
 
-Run BinaryMultiply.c for benchmarking the algorithm.
+Run xCMMA.c for benchmarking the algorithm.
 
 ![Alt text](https://github.com/akhauriyash/XNOR-Intel-ISA/blob/master/xGEMM%20opt%20bmark.png?raw=true)
 The image above is representing the results of an extremely crudely optimized code. Will post improvements as they come.
 
-## Benchmarks
+## xCONV (Binarized convolution on Intel Xeon Phi)
 
+Run xCONV.c for benchmarking the algorithm.
+
+![Alt text](https://github.com/akhauriyash/XNOR-Intel-ISA/blob/master/xCONV%20benchmark.png?raw=true)
+The image above is representing the results of an extremely crudely optimized code. Will post improvements as they come.
+
+## Benchmarks
+**xCONV benchmark** 
+|  Matrix Size | FP CONV (s) | xCONV (s) | **Speed up** | Kernel size |
+|  ------ | ------ | ------ | ------ | ------ |
+|  4096 | 0.0354336 | 0.0400825 | 0.8840167155242313 | 4x4 |
+|  2048 | 0.0350968 | 0.0089961 | 3.9013350229543913 | 4x4 |
+|  1024 | 0.0298355 | 0.0022663 | 13.164850196355292 | 4x4 |
+|  512 | 0.0017948 | 0.0005657 | 3.1727063814742795 | 4x4 |
+|  256 | 0.0020824 | 0.0001499 | 13.891927951967977 | 4x4 |
+|  128 | 0.0013783 | 0.000078 | 17.670512820512823 | 4x4 |
+|  64 | 0.0018215 | 0.0000431 | **42.262180974477964** | 4x4 |
+
+**xGEMM benchmark**
 |  Matrix size | CMMA time (s) | xGEMM optimized (s) | **Speedup** | Binarization time (s) | XNOR GEMM time (s) | **Speedup** |
 |  ------ | ------ | ------ | ------ | ------ | ------ | ------ |
 |  16384 | 182.287304 | 2.7664792 | 65.891479 | 0.2814668 | 41.75 | 4.36616805 |
@@ -41,35 +59,6 @@ The image above is representing the results of an extremely crudely optimized co
  	`gcc experiments.c -fopenmp -lm`
   	in the terminal.
 
-## Binarization:
-  Run the binarize.c code. In the preliminary round, the results are as such:
-  (matrix size: 8192)
-
-KMP_AFFINITY=scatter 
-
-`Number of OpenMP threads:  64`
-
-`Binarization A - Completed in: 0.0059493 seconds`
-
-`Binarization B - Completed in: 0.0994816 seconds`
-
-KMP_AFFINITY=balanced, granularity=fine
-
-`Number of OpenMP threads:  64`
-
-`Binarization A - Completed in: 0.0065423 seconds`
-
-`Binarization B - Completed in: 0.0957288 seconds`
-
-KMP_AFFINITY=compact
-
-`Number of OpenMP threads:  64`
-
-`Binarization A - Completed in: 0.0170125 seconds`
-
-`Binarization B - Completed in: 0.1191385 seconds`
-
-As matrices are cached in row major format and we access B column wise, it is no surprise that the binarization of B is so slow. It might be a better idea to first transpose the B matrix, and then do the binarization process for more cache hits. This is a very basic optimization technique. The binarization algorithm has a lot of scope for parallelization. 
 
  
  
