@@ -11,10 +11,12 @@
 //	To compile:
 //	icpc -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 xconv.c -o xconv.out && echo ~/parallel/xconv.out | qsub 
 
-#define FPUTYPE		float
-#define BINTYPE		unsigned int
 
 #define K_SIZE 		4
+
+#define FPUTYPE		float
+#define BINTYPE		unsigned short
+
 // #define MX_SIZE				16384
 // #define MX_SIZE				8192
 // #define MX_SIZE				4096
@@ -120,13 +122,14 @@ int main( void )
 	printf("\n");
 	printBits(sizeof(bkerA), &bkerA);
 	printf("\n");printf("\n");
+
 	dTimeS = dsecnd();
 	for(int i = 0; i < r-rk+1; i++){
 		for(int j = 0; j < c-ck+1; j++){
 			tbA = 0;
 			for(int ii = 0; ii < rk; ii++){
 				for(int jj = 0; jj < ck; jj++){
-					sign = (int) (kerA[i+ii][j+jj] >= 0);
+					sign = (int) (pA[i+ii][j+jj] >= 0);
 					tbA = tbA|(sign<<(ii*ck + jj));
 				}
 			}
@@ -140,13 +143,12 @@ int main( void )
 			tbA = 0;
 			for(int ii = 0; ii < rk; ii++){
 				for(int jj = 0; jj < ck; jj++){
-					printf("%1f\t", kerA[i+ii][j+jj]);
+					printf("%0.1f\t", pA[i+ii][j+jj]);
 				}
-			}
+			}	
 			printBits(sizeof(bA[i][j]), &bA[i][j]);
 		}
 	}
-
 
 
 ////////////////////////	kerA pA binarization    	///////////////////////////////
@@ -157,3 +159,6 @@ int main( void )
 
 
 }
+
+
+
