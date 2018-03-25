@@ -146,14 +146,14 @@ int main( void )
 	BINTYPE bkerA = 0;	int sign;	BINTYPE tbA = 0;
 	for(int i = 0; i < rk; i++){
 		for(int j = 0; j < ck; j++){
-			printf("%.1f\t", kerA[i][j]);
+			// printf("%.1f\t", kerA[i][j]);
 			sign = (int) (kerA[i][j] >= 0);
 			bkerA = bkerA|(sign<<(i*ck + j));
 		}
 	}
-	printf("\n");
-	printBits(sizeof(bkerA), &bkerA);
-	printf("\n");printf("\n");
+	// printf("\n");
+	// printBits(sizeof(bkerA), &bkerA);
+	// printf("\n");printf("\n");
 
 
 ////////////////////////	kerA pA binarization    	///////////////////////////////
@@ -176,17 +176,17 @@ int main( void )
 	}
 	dTimeE = dsecnd();
 	printf( "\nBinarization A - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ));
-	for(int i = 0; i < 3; i++){
-		for(int j = 0; j < 4; j++){
-			tbA = 0;
-			for(int ii = 0; ii < rk; ii++){
-				for(int jj = 0; jj < ck; jj++){
-					printf("%0.1f\t", pA[i+ii][j+jj]);
-				}
-			}	
-			printBits(sizeof(bA[i][j]), &bA[i][j]);
-		}
-	}
+	// for(int i = 0; i < 3; i++){
+	// 	for(int j = 0; j < 4; j++){
+	// 		tbA = 0;
+	// 		for(int ii = 0; ii < rk; ii++){
+	// 			for(int jj = 0; jj < ck; jj++){
+	// 				printf("%0.1f\t", pA[i+ii][j+jj]);
+	// 			}
+	// 		}	
+	// 		printBits(sizeof(bA[i][j]), &bA[i][j]);
+	// 	}
+	// }
 
 
 ////////////////////////	Binarized convolution   	///////////////////////////////
