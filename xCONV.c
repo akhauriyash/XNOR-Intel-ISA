@@ -17,16 +17,18 @@
 #define FPUTYPE		float
 #define BINTYPE		unsigned short
 
-// #define MX_SIZE				32768
+#define MX_SIZE				32768
 // #define MX_SIZE				16384
 // #define MX_SIZE				8192
 // #define MX_SIZE				4096
 // #define MX_SIZE				2048
 // #define MX_SIZE				1024
 // #define MX_SIZE				512
-#define MX_SIZE				256
+// #define MX_SIZE				256
+// #define MX_SIZE				128
+// #define MX_SIZE				64
 #define NUM_OF_THREADS		256
-#define TEST_LOOP			5
+#define TEST_LOOP			6
 
 // printBits prints the binary format of the unsigned int passed to it.
 void printBits(size_t const size, void const * const ptr){
@@ -60,7 +62,7 @@ int main( void )
 
 ////////////////////////  Allocate full precision matrix 	///////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
-	
+
 	__attribute__( ( aligned( 32 ) ) ) FPUTYPE **pA = NULL;
 	pA = ( FPUTYPE ** )_mm_malloc(r*sizeof(FPUTYPE *), 32);
 	for(int i = 0; i < r; i++){
