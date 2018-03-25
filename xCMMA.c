@@ -1,3 +1,14 @@
+///////////////////////////////////////////////////////////////////////////////
+// xCMMA.c - Tests for Intel(R) Xeon Phi(TM) Processor.
+//				Implemented by Yash Akhauri.
+// Notes:
+//		- Performance tests matrix multiply algorithms on a Intel Xeon Phi 7210 Processor.
+//		- To compile, make sure the directory of echo ~/_director_/xconv.out | qsub matches.
+// To Compile:
+//		icpc -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 xCMMA.c -o xcmma.out && echo ~/xcmma.out | qsub 
+//
+///////////////////////////////////////////////////////////////////////////////
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -8,21 +19,36 @@
 #include <mkl.h>
 #include <iostream>
 
-//	To compile:
-//	Check available nodes with pbsnodes, Note that skylake does not support AVXER/PF
-//	icpc -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 xCMMA.c -o bins.out && echo ~/parallel/bins.out | qsub 
-
 #define FPUTYPE				float
 #define BINTYPE				unsigned int
+
 // #define MX_SIZE				16384
-// #define MX_SIZE				8192
-// #define MX_SIZE				4096
-// #define MX_SIZE				2048
-#define MX_SIZE				1024
-// #define MX_SIZE				512
-// #define MX_SIZE				256
-#define NUM_OF_THREADS		64
-#define TEST_LOOP			10
+// #define MX_SIZE				 8192
+#define MX_SIZE					 4096
+// #define MX_SIZE				 2048
+// #define MX_SIZE				 1024
+// #define MX_SIZE				  512
+// #define MX_SIZE				  256
+
+
+#define NUM_OF_THREADS			64
+#define TEST_LOOP				100
+
+// printBits prints the binary format of the unsigned int passed to it.
+void printBits(size_t const size, void const * const ptr){
+    unsigned char *b = (unsigned char*) ptr;
+    unsigned char byte;
+    int i, j;
+    printf("\n");
+    for (i=size-1;i>=0;i--)
+        for (j=7;j>=0;j--)
+        {
+            byte = (b[i] >> j) & 1;
+            printf("%u", byte);
+        }
+    puts("");    printf("\n");             
+    }
+
 
 int main( void )
 {
@@ -41,14 +67,14 @@ int main( void )
 ////////////////////////  Allocate full precision matrices 	///////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pA = NULL;		// Allocating memory 
-	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pB = NULL;		// for matrices aligned
-	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pC = NULL;		// on 64-byte boundary
+	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pA = NULL;			// Allocating memory 
+	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pB = NULL;			// for matrices aligned
+	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pC = NULL;			// on 64-byte boundary
 
 
-	pA = ( FPUTYPE ** )_mm_malloc(m*sizeof(FPUTYPE *), 64);		// These loops can 
-	for(int i = 0; i < m; i++){									// be collapsed
-		pA[i] = ( FPUTYPE * )_mm_malloc(p*sizeof(FPUTYPE), 64);	// as m = n = p = MX_SIZE
+	pA = ( FPUTYPE ** )_mm_malloc(m*sizeof(FPUTYPE *), 64);			// These loops can 
+	for(int i = 0; i < m; i++){										// be collapsed
+		pA[i] = ( FPUTYPE * )_mm_malloc(p*sizeof(FPUTYPE), 64);		// as m = n = p = MX_SIZE
 	}
 	pB = ( FPUTYPE ** )_mm_malloc(p*sizeof(FPUTYPE *), 64);
 	for(int i = 0; i < p; i++){
@@ -58,9 +84,9 @@ int main( void )
 	for(int i = 0; i < m; i++){
 		pC[i] = ( FPUTYPE * )_mm_malloc(n*sizeof(FPUTYPE), 64);
 	}
-	if( pA == NULL || pB == NULL || pC == NULL )				// Error handling 
-	{															// if any array is
-		printf( "\nERROR: Can't allocate memory for matrices\n" );// not allocated
+	if( pA == NULL || pB == NULL || pC == NULL )					// Error handling 
+	{																// if any array is
+		printf( "\nERROR: Can't allocate memory for matrices\n" );	// not allocated
 		_mm_free( pA );
 		_mm_free( pB );
 		_mm_free( pC );
@@ -69,15 +95,15 @@ int main( void )
 	for(int j = 0; j < m; j++){
 		for( i = 0; i < p; i++)
 		{
-			FPUTYPE x = (FPUTYPE) rand()/RAND_MAX;				// Create random
-			pA[j][i] = ( x < 0.5 ) ? -1 : 1;					// +1/-1 matrices
+			FPUTYPE x = (FPUTYPE) rand()/RAND_MAX;					// Create random
+			pA[j][i] = ( x < 0.5 ) ? -1 : 1;						// +1/-1 matrices
 		}
 	}
 	for(int j = 0; j < p; j++){
 		for( i = 0; i < n; i++)
 		{
-			FPUTYPE x = (FPUTYPE) rand()/RAND_MAX;				// Create random
-			pB[j][i] = ( x > 0.5 ) ? -1 : 1;					// +1/-1 matrices
+			FPUTYPE x = (FPUTYPE) rand()/RAND_MAX;					// Create random
+			pB[j][i] = ( x > 0.5 ) ? -1 : 1;						// +1/-1 matrices
 		}
 	}
 	for(int j = 0; j < m; j++){
@@ -87,7 +113,6 @@ int main( void )
 		}
 	}
 
-	printf("\n\n\n **** STARTING Full precision FUNCTIONS **** \n\n\n");
 ////////////////////////	FP Matrix multiplication 	///////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 	float sum = 0;
@@ -106,13 +131,14 @@ int main( void )
 	}
 	dTimeE = dsecnd();
 	printf( "\nFull precision CMMA - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ) / (double) TEST_LOOP);	
-	printf("\nFull precision multiplication result:\n");
+	printf("\nFull precision multiplication result:\n");			
 	for(int i = 0; i<4; i++){
 		for(j = 0; j<5; j++){
 			printf("%f\t", pC[i][j]);
 		}
-	}
-	printf("\n\n\n **** STARTING BINARY FUNCTIONS **** \n\n\n");
+		printf("\n");
+	}	printf("\n");
+
 ////////////////////////	Allocate binary matrices 	///////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -131,6 +157,7 @@ int main( void )
 
 ////////////////////////	  Binarization of A&B   	///////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
+
 	int sign; BINTYPE tbA; BINTYPE tbB;
 
 	dTimeS = dsecnd();
@@ -142,7 +169,7 @@ int main( void )
 			{
 				tbA = 0;
 				for(int j = 0; j < 32; j++)
-				{//					[i*n + seg*32 + j]
+				{//					[i*n + seg*32 + j]		For flattened matrices
 					sign = (int) (pA[i][seg*32 + j] >= 0);
 					tbA = tbA|(sign<<j);
 				}
@@ -163,7 +190,7 @@ int main( void )
 			{
 				tbB = 0;
 				for(int j = 0; j < 32; j++)
-				{//					[i+seg*32*n + j*n]
+				{//					[i+seg*32*n + j*n]		For flattened matrices
 					sign = (int) (pB[seg*32 + j][i] >= 0);
 					tbB = tbB|(sign<<j);
 				}
@@ -198,5 +225,6 @@ int main( void )
 		for(j = 0; j<5; j++){
 			printf("%f\t", pC[i][j]);
 		}
+		printf("\n");
 	}
 }
