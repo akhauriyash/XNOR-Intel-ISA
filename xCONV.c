@@ -13,15 +13,15 @@
 
 
 #define K_SIZE 		4
-
+#define K_LOOP		K_SIZE*K_SIZE
 #define FPUTYPE		float
 #define BINTYPE		unsigned short
 
 // #define MX_SIZE				16384
 // #define MX_SIZE				8192
-// #define MX_SIZE				4096
+#define MX_SIZE				4096
 // #define MX_SIZE				2048
-#define MX_SIZE				1024
+// #define MX_SIZE				1024
 // #define MX_SIZE				512
 // #define MX_SIZE				256
 #define NUM_OF_THREADS		64
@@ -72,6 +72,12 @@ int main( void )
 	for(int i = 0; i < rk; i++){
 		kerA[i] = ( FPUTYPE *)_mm_malloc(ck*sizeof(FPUTYPE), 64);
 	}
+	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pC = NULL;
+	pC = ( FPUTYPE ** )_mm_malloc((r-rk+1)*sizeof(FPUTYPE *), 64);
+	for(int i = 0; i < (r-rk+1); i++){
+		pC[i] = ( FPUTYPE * )_mm_malloc((c-ck+1)*sizeof(FPUTYPE), 64);
+	}
+
 	if(pA == NULL || kerA == NULL){
 		printf( "\nERROR: Can't allocate memory for matrices\n" );
 		_mm_free( pA );
@@ -98,11 +104,38 @@ int main( void )
 ////////////////////////	FP Matrix Convolution   	///////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 
+	int accumulator;
+	dTimeS = dsecnd();
+
+	#pragma omp parallel for private(i, j, ii, jj, accumulator) num_threads(NUM_OF_THREADS)
+	for(int i = 0; i < r-rk+1; i++){
+		for(int j = 0; j < c-ck+1; j++){
+			accumulator = 0;
+			for(int ii = 0; ii < rk; ii++){
+				for(int jj = 0; jj < ck; jj++){
+					accumulator += pA[i+ii][j+jj]*kerA[ii][jj];
+				}
+			}
+			pC[i][j] = accumulator;
+		}
+	}
+	dTimeE = dsecnd();
+	printf( "\n FP CONV - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ));
+	for(int i = 0; i < 5; i++){
+		for(int j = 0; j < 5; j++){
+			printf("%.1f\t", pC[i][j]);
+		}
+		printf("\n");
+	}
+	printf("\n\n");
+
 ////////////////////////	Allocate binary matrices   	///////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
-
+// If data type is unsigned int, then the commend below applies. If unsigned short, then no problem.
 // Post binarization: kerA: bkerA ==> 1 unsigned int 32 bit (high lane: 1s) [mxm] (assume m*m = 16)
 //					  pA:   bA    ==> Matrix: shape (n-m+1 x n-m+1) (Every 16 bit high lane 0s)
+
+//	*** NOTE THAT THE BINARIZATION PROCEDURE REVERSES MATRIX ORDER ***
 
 	__attribute__( ( aligned( 64 ) ) ) BINTYPE **bA = NULL;
 
@@ -110,7 +143,6 @@ int main( void )
 	for(int i = 0; i < (r-rk+1); i++){
 		bA[i] = ( BINTYPE * )_mm_malloc((c-ck+1)*sizeof(BINTYPE), 64);
 	}
-//	*** NOTE THAT THE BINARIZATION PROCEDURE REVERSES MATRIX ORDER ***
 	BINTYPE bkerA = 0;	int sign;	BINTYPE tbA = 0;
 	for(int i = 0; i < rk; i++){
 		for(int j = 0; j < ck; j++){
@@ -123,7 +155,13 @@ int main( void )
 	printBits(sizeof(bkerA), &bkerA);
 	printf("\n");printf("\n");
 
+
+////////////////////////	kerA pA binarization    	///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+
 	dTimeS = dsecnd();
+	// Time taken to binarize 16384 matrix: 1.089s (with pragma), 8.772s (without pragma)
+	#pragma omp parallel for private(i, j, ii, jj, tbA, sign) num_threads(NUM_OF_THREADS)
 	for(int i = 0; i < r-rk+1; i++){
 		for(int j = 0; j < c-ck+1; j++){
 			tbA = 0;
@@ -151,13 +189,23 @@ int main( void )
 	}
 
 
-////////////////////////	kerA pA binarization    	///////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
-
 ////////////////////////	Binarized convolution   	///////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
-
-
+	dTimeS = dsecnd();
+	#pragma omp parallel for private(i, j) num_threads(NUM_OF_THREADS)
+	for(int i = 0; i < (r-rk+1); i++){
+		for(int j = 0; j < (c-ck+1); j++){
+			pC[i][j] = 2*(__builtin_popcount(~(bA[i][j]^bkerA))) - 48;
+			}
+		}
+	dTimeE = dsecnd();
+	printf( "\nxCONV - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ));
+	for(int i = 0; i < 5; i++){
+		for(int j = 0; j < 5; j++){
+			printf("%.1f\t", pC[i][j]);
+		}
+		printf("\n");
+	}
 }
 
 
