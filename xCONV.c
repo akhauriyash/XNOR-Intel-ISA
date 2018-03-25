@@ -17,15 +17,16 @@
 #define FPUTYPE		float
 #define BINTYPE		unsigned short
 
+// #define MX_SIZE				32768
 // #define MX_SIZE				16384
 // #define MX_SIZE				8192
-#define MX_SIZE				4096
+// #define MX_SIZE				4096
 // #define MX_SIZE				2048
 // #define MX_SIZE				1024
 // #define MX_SIZE				512
-// #define MX_SIZE				256
-#define NUM_OF_THREADS		64
-#define TEST_LOOP			10
+#define MX_SIZE				256
+#define NUM_OF_THREADS		256
+#define TEST_LOOP			5
 
 // printBits prints the binary format of the unsigned int passed to it.
 void printBits(size_t const size, void const * const ptr){
@@ -42,8 +43,6 @@ void printBits(size_t const size, void const * const ptr){
     puts("");    printf("\n");             
     }
 
-
-
 int main( void )
 {
 	size_t r, c, rk, ck;
@@ -52,30 +51,30 @@ int main( void )
 	r = c = MX_SIZE;
 	rk = ck = K_SIZE;
 	printf("Matrix size: %d x %d \n Kernel Size %d x %d \n", r, c, rk, ck);
-	putenv("KMP_AFFINITY=scatter");	
-	// putenv("KMP_AFFINITY=balanced, granularity=fine");
-	// putenv("KMP_AFFINITY=compact");
+	putenv("KMP_AFFINITY=scatter");								// OK
+	// putenv("KMP_AFFINITY=balanced, granularity=fine");		// OK
+	// putenv("KMP_AFFINITY=compact");							// BAD
 	omp_set_num_threads(NUM_OF_THREADS);
 	printf("Number of OpenMP threads: %3d\n", NUM_OF_THREADS);
 
 
 ////////////////////////  Allocate full precision matrix 	///////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
-
-	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pA = NULL;
-	pA = ( FPUTYPE ** )_mm_malloc(r*sizeof(FPUTYPE *), 64);
+	
+	__attribute__( ( aligned( 32 ) ) ) FPUTYPE **pA = NULL;
+	pA = ( FPUTYPE ** )_mm_malloc(r*sizeof(FPUTYPE *), 32);
 	for(int i = 0; i < r; i++){
-		pA[i] = ( FPUTYPE * )_mm_malloc(c*sizeof(FPUTYPE), 64);
+		pA[i] = ( FPUTYPE * )_mm_malloc(c*sizeof(FPUTYPE), 32);
 	}
-	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **kerA = NULL;
-	kerA = ( FPUTYPE ** )_mm_malloc(rk*sizeof(FPUTYPE *), 64);
+	__attribute__( ( aligned( 32 ) ) ) FPUTYPE **kerA = NULL;
+	kerA = ( FPUTYPE ** )_mm_malloc(rk*sizeof(FPUTYPE *), 32);
 	for(int i = 0; i < rk; i++){
-		kerA[i] = ( FPUTYPE *)_mm_malloc(ck*sizeof(FPUTYPE), 64);
+		kerA[i] = ( FPUTYPE *)_mm_malloc(ck*sizeof(FPUTYPE), 32);
 	}
-	__attribute__( ( aligned( 64 ) ) ) FPUTYPE **pC = NULL;
-	pC = ( FPUTYPE ** )_mm_malloc((r-rk+1)*sizeof(FPUTYPE *), 64);
+	__attribute__( ( aligned( 32 ) ) ) FPUTYPE **pC = NULL;
+	pC = ( FPUTYPE ** )_mm_malloc((r-rk+1)*sizeof(FPUTYPE *), 32);
 	for(int i = 0; i < (r-rk+1); i++){
-		pC[i] = ( FPUTYPE * )_mm_malloc((c-ck+1)*sizeof(FPUTYPE), 64);
+		pC[i] = ( FPUTYPE * )_mm_malloc((c-ck+1)*sizeof(FPUTYPE), 32);
 	}
 
 	if(pA == NULL || kerA == NULL){
@@ -138,11 +137,11 @@ int main( void )
 
 //	*** NOTE THAT THE BINARIZATION PROCEDURE REVERSES MATRIX ORDER ***
 
-	__attribute__( ( aligned( 64 ) ) ) BINTYPE **bA = NULL;
+	__attribute__( ( aligned( 16 ) ) ) BINTYPE **bA = NULL;
 
-	bA = ( BINTYPE ** )_mm_malloc((r-rk+1)*sizeof(BINTYPE *), 64);
+	bA = ( BINTYPE ** )_mm_malloc((r-rk+1)*sizeof(BINTYPE *), 16);
 	for(int i = 0; i < (r-rk+1); i++){
-		bA[i] = ( BINTYPE * )_mm_malloc((c-ck+1)*sizeof(BINTYPE), 64);
+		bA[i] = ( BINTYPE * )_mm_malloc((c-ck+1)*sizeof(BINTYPE), 16);
 	}
 	BINTYPE bkerA = 0;	int sign;	BINTYPE tbA = 0;
 	for(int i = 0; i < rk; i++){
