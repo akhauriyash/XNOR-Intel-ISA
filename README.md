@@ -33,7 +33,11 @@ The image above is representing the results of an extremely crudely optimized co
 
 
 ## To run:
-   Execute this as
+   These codes have been written on the Colfax Cluster optimized for **Intel Xeon Phi KNL 7210.**
+   To run xCMMA.c, execute this:
+   `icpc -xMIC-AVX512 -qopenmp -mkl -fp-model fast=2 -fma -unroll=4 xCMMA.c -o xCMMA.out && echo ~/parallel/xCMMA.out | qsub`
+   
+   To learn more about OpenMP and attempt some basic exercises, execute:
  	`gcc experiments.c -fopenmp -lm`
   	in the terminal.
 
