@@ -106,21 +106,22 @@ int main( void )
 
 	int accumulator;
 	dTimeS = dsecnd();
-
-	#pragma omp parallel for private(i, j, ii, jj, accumulator) num_threads(NUM_OF_THREADS)
-	for(int i = 0; i < r-rk+1; i++){
-		for(int j = 0; j < c-ck+1; j++){
-			accumulator = 0;
-			for(int ii = 0; ii < rk; ii++){
-				for(int jj = 0; jj < ck; jj++){
-					accumulator += pA[i+ii][j+jj]*kerA[ii][jj];
+	for(int tloop = 0; tloop<TEST_LOOP; tloop++){
+		#pragma omp parallel for private(i, j, ii, jj, accumulator) num_threads(NUM_OF_THREADS)
+		for(int i = 0; i < r-rk+1; i++){
+			for(int j = 0; j < c-ck+1; j++){
+				accumulator = 0;
+				for(int ii = 0; ii < rk; ii++){
+					for(int jj = 0; jj < ck; jj++){
+						accumulator += pA[i+ii][j+jj]*kerA[ii][jj];
+					}
 				}
+				pC[i][j] = accumulator;
 			}
-			pC[i][j] = accumulator;
 		}
 	}
 	dTimeE = dsecnd();
-	printf( "\n FP CONV - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ));
+	printf( "\n FP CONV - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ) / TEST_LOOP);
 	for(int i = 0; i < 5; i++){
 		for(int j = 0; j < 5; j++){
 			printf("%.1f\t", pC[i][j]);
@@ -161,21 +162,26 @@ int main( void )
 
 	dTimeS = dsecnd();
 	// Time taken to binarize 16384 matrix: 1.089s (with pragma), 8.772s (without pragma)
-	#pragma omp parallel for private(i, j, ii, jj, tbA, sign) num_threads(NUM_OF_THREADS)
-	for(int i = 0; i < r-rk+1; i++){
-		for(int j = 0; j < c-ck+1; j++){
-			tbA = 0;
-			for(int ii = 0; ii < rk; ii++){
-				for(int jj = 0; jj < ck; jj++){
-					sign = (int) (pA[i+ii][j+jj] >= 0);
-					tbA = tbA|(sign<<(ii*ck + jj));
+
+	for(int tloop = 0; tloop<TEST_LOOP; tloop++){
+		#pragma omp parallel for private(i, j, ii, jj, tbA, sign) num_threads(NUM_OF_THREADS)
+		for(int i = 0; i < r-rk+1; i++){
+			for(int j = 0; j < c-ck+1; j++){
+				tbA = 0;
+				for(int ii = 0; ii < rk; ii++){
+					for(int jj = 0; jj < ck; jj++){
+						sign = (int) (pA[i+ii][j+jj] >= 0);
+						tbA = tbA|(sign<<(ii*ck + jj));
+					}
 				}
+				pC[i][j] = 2*(__builtin_popcount(~(tbA^bkerA))) - 48;
 			}
-			bA[i][j] = tbA;
 		}
-	}
+	}	
 	dTimeE = dsecnd();
-	printf( "\nBinarization A - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ));
+	printf( "\n BIN+xCONV A - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ) / TEST_LOOP);
+
+	// printf( "\nBinarization A - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ) / TEST_LOOP);
 	// for(int i = 0; i < 3; i++){
 	// 	for(int j = 0; j < 4; j++){
 	// 		tbA = 0;
@@ -191,15 +197,18 @@ int main( void )
 
 ////////////////////////	Binarized convolution   	///////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
-	dTimeS = dsecnd();
-	#pragma omp parallel for private(i, j) num_threads(NUM_OF_THREADS)
-	for(int i = 0; i < (r-rk+1); i++){
-		for(int j = 0; j < (c-ck+1); j++){
-			pC[i][j] = 2*(__builtin_popcount(~(bA[i][j]^bkerA))) - 48;
-			}
-		}
-	dTimeE = dsecnd();
-	printf( "\nxCONV - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ));
+	// dTimeS = dsecnd();
+
+	// for(int tloop = 0; tloop<TEST_LOOP; tloop++){
+	// 	#pragma omp parallel for private(i, j) num_threads(NUM_OF_THREADS)
+	// 	for(int i = 0; i < (r-rk+1); i++){
+	// 		for(int j = 0; j < (c-ck+1); j++){
+	// 			pC[i][j] = 2*(__builtin_popcount(~(bA[i][j]^bkerA))) - 48;
+	// 			}
+	// 		}
+	// 	}
+	// dTimeE = dsecnd();
+	// printf( "\nxCONV - Completed in: %.7f seconds\n", ( dTimeE - dTimeS ) / TEST_LOOP);
 	for(int i = 0; i < 5; i++){
 		for(int j = 0; j < 5; j++){
 			printf("%.1f\t", pC[i][j]);
