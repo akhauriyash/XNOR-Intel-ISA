@@ -3,15 +3,6 @@ Attempting to implement XNOR neural network functions (Convolution, GEMM ...) on
 
 For CUDA compatiable (Nvidia GPU) XNOR convolutional kernel, check out [this repository.](https://github.com/akhauriyash/XNOR-convolution)
 
-  * The first part of this project aims to create an introductory c file to teach people about OpenMP and parallel programming.
-  
-##  Prerequisites:
-  * Intel® Xeon Phi™ Processor (Any Intel processor should do but code shall attempt to leverage AVX-512 ISA exclusively)
-    
-##  Note:
-  This is a work in progress. There might be some mistakes here. 
-  Do let me know if you find any logical errors in the code.
-  
 ## xGEMM (Binarized General Matrix Multiply on Intel Xeon Phi)
 
 Run xCMMA.c for benchmarking the algorithm.
@@ -62,8 +53,13 @@ The image above is representing the results of an extremely crudely optimized co
  	`gcc experiments.c -fopenmp -lm`
   	in the terminal.
 
-
- 
+##  Hardware specifications:
+  * Intel® Xeon Phi™ 7210 Processor
+     **Properties = xeonphi,knl,knl7210,ram96gb,flat,quadrant**     
+    
+##  Note:
+  This is a work in progress. There might be some mistakes here. 
+  Do let me know if you find any logical errors in the code.
  
 ##  TO DO:
   - [ ] Upload codes
