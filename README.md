@@ -7,7 +7,7 @@ For CUDA compatiable (Nvidia GPU) XNOR convolutional kernel, check out [this rep
 
 Run xCMMA.c for benchmarking the algorithm.
 
-![Alt text](https://github.com/akhauriyash/XNOR-Intel-ISA/blob/master/xGEMM%20opt%20bmark.png?raw=true)
+![Alt text](https://github.com/akhauriyash/XNOR-Intel-ISA/blob/master/xGEMM%20opt%20bmarks.png?raw=true)
 The image above is representing the results of an extremely crudely optimized code. Will post improvements as they come.
 
 ## xCONV (Binarized convolution on Intel Xeon Phi)
