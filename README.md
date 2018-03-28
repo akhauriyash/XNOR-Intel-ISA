@@ -52,6 +52,21 @@ The image above is representing the results of an extremely crudely optimized co
    To learn more about OpenMP and attempt some basic exercises, execute:
  	`gcc experiments.c -fopenmp -lm`
   	in the terminal.
+   
+   * The compiler option –xcode
+
+   The general form is –xcode on Linux* and /Qxcode on Windows* where code is the argument. This option tells the compiler which processor features it may target. To generate Intel AVX-512 instructions, you can use one of the three different arguments to generate different categories:
+
+   -xCOMMON-AVX512: use this option to generate AVX-512F and AVX-512CD.
+
+   -xMIC-AVX512: use this option to generate AVX-512F, AVX-512CD, AVX-512ER and AVX-512FP.
+
+   -xCORE-AVX512: use this option to generate AVX-512F, AVX-512CD, AVX-512BW, AVX-512DQ and AVX-512VL.
+
+   For example, to generate Intel AVX-512 instructions for the Intel Xeon Phi processor x200, you should use the option –xMIC-AVX512. For example, on a Linux system
+
+   $ icc –xMIC-AVX512 application.c
+   This compiler option is useful when you want to build a huge binary for the Intel Xeon Phi processor x200. Instead of building it on the Intel Xeon Phi processor x200 where it will take more time, build it on an Intel Xeon processor-based machine
 
 ##  Hardware specifications:
   * Intel® Xeon Phi™ 7210 Processor
