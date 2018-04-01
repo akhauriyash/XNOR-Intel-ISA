@@ -147,7 +147,13 @@ int main( void )
 
 	bA = ( BINTYPE ** )_mm_malloc(m*sizeof(BINTYPE *), 64);
 	bB = ( BINTYPE ** )_mm_malloc(n*sizeof(BINTYPE *), 64);
-
+		if( bA == NULL || bB == NULL )					// Error handling 
+		{																// if any array is
+			printf( "\nERROR: Can't allocate memory for  matrices\n" );	// not allocated
+			_mm_free( bA );
+			_mm_free( bB );
+			return ( int )0;
+		}
 	for(int i = 0; i<m; i++){
 		bA[i] = (BINTYPE *)_mm_malloc((p/32)*sizeof(BINTYPE), 64);
 	}
